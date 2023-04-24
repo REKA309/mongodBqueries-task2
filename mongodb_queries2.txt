@@ -1,0 +1,45 @@
+//Q1:Find all the mentors with who has the mentee's count more than 15
+db.batchInfo.aggregate([{$match:{batchStrength:{$gt:15}}},
+{ $lookup: {
+      from: "mentorInfo",
+      localField: "mentorId",
+      foreignField: "id",
+      as: "mentor_details",
+    }},
+{$project:{mentor_details:{id:1,mentorName:1},batchStrength:1}}
+])
+//Q2:Find the number of problems solved by the user in codekata
+db.codekataInfo.aggregate([
+  {$lookup:{from:"userInfo",localField:"userId",foreignField:"_id",as:"userDetails"}},
+  {$project:{userDetails:{id:1,userName:1},problemsSolved:1}}
+  ])
+//Q3:Find all the topics and tasks which are thought in the month of October
+db.topicInfo.aggregate([
+  {
+    $match:{"scheduleDate":{"$gte":ISODate("2020-10-01"),$lte:ISODate("2020-10-31")}}
+  },
+  {$lookup:{from:"taskInfo",localField:"taskId",foreignField:"_id",as:"taskDetails"}},
+  {$project:{topicName:1,taskDetails:{task:1},scheduleDate:1}}
+  ])
+  //Q4:Find all the company drives which appeared between 15 oct-2022 and 31-oct-2022
+  db.companyDriveInfo.aggregate([
+  {$match:{"appearDate":{"$gte":ISODate("2022-10-15"),$lte:ISODate("2022-10-31")}}}
+  ])
+//Q5:Find the number of users who are absent and task is not submitted  between 15 oct-2020 and 31-oct-2020
+db.attendanceInfo.aggregate([
+  {
+    $match: {
+      $and: [
+        {"date":{"$gte":ISODate("2020-10-15"),$lte:ISODate("2020-10-31")}}, 
+        {"isSubmitted":{$ne:true }},
+        {"isPresent":{$ne:true}},
+      ]
+    }
+  }
+])
+//Q6:Find all the company drives and students who are appeared for the placement.
+db.placedStudentInfo.find({isAttended:true})
+db.companyDriveInfo.find({isDriveAttended:true})
+
+  
+  
